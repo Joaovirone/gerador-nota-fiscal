@@ -28,6 +28,8 @@ spring:
     fail-on-missing-locations: false
     out-of-order: false
 
+server:
+  port: 5002
 
 logging:
   level:
