@@ -39,7 +39,7 @@ public class NotaFiscal {
     @Enumerated(EnumType.STRING)
     private StatusNota status = StatusNota.DIGITACAO;
 
-    @OneToMany(cascade= CascadeType.ALL)
+    @OneToMany(mappedBy="notaFiscal", cascade= CascadeType.ALL, orphanRemoval= true)
     @JoinColumn(name= "nota_id")
     private List<ItemNotaFiscal> itens = new ArrayList<>();
 
@@ -47,7 +47,10 @@ public class NotaFiscal {
     public void calcularTotal(){
 
         this.valorTotal = itens.stream()
-                .map(ItemNotaFiscal :: getValorTotal)
+                .map(item -> {
+                    item.calcularSubtotal();
+                    return item.getValorTotal();
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal :: add);
     }
 }
