@@ -23,8 +23,8 @@ Isso irá:
 
 ### 2. **Acessar a Aplicação**
 
-- **API REST**: http://localhost:8080
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **API REST**: http://localhost:5002
+- **Swagger UI**: http://localhost:5002/swagger-ui.html
 - **PostgreSQL**: localhost:5001
 
 ### 3. **Variáveis de Ambiente**
