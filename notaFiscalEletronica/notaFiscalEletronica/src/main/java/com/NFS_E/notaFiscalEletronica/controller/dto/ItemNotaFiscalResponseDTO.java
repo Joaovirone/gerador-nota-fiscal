@@ -1,5 +1,7 @@
+package com.NFS_E.notaFiscalEletronica.controller.dto;
 
-
+import java.math.BigDecimal;
+import java.util.UUID;
 
 public record ItemNotaFiscalResponseDTO(
 
@@ -8,9 +10,7 @@ public record ItemNotaFiscalResponseDTO(
     BigDecimal quantidade,
     BigDecimal valorUnitario,
     BigDecimal valorTotal
+) {
     
-
-
-){
 
 }
