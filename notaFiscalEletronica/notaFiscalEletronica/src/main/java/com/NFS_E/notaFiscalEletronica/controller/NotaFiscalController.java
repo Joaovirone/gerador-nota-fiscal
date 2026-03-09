@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.NFS_E.notaFiscalEletronica.controller.dto.NotaFiscalFiltroDTO;
 import com.NFS_E.notaFiscalEletronica.controller.dto.PageResponseDTO;
 
 
@@ -67,9 +68,11 @@ public class NotaFiscalController {
 
 
     @GetMapping("/listar-nota-fiscal")
-    public ResponseEntity<PageResponseDTO<NotaFiscalResponseDTO>> listar(
+    public ResponseEntity<PageResponseDTO<NotaFiscalResponseDTO>> listar(NotaFiscalFiltroDTO filtro,
             @PageableDefault(size = 10, sort = "dataCriacao", direction = Sort.Direction.DESC) Pageable paginacao) {
-        return ResponseEntity.ok(service.listarTodas(paginacao));
+        
+        
+                return ResponseEntity.ok(service.listarTodas(filtro ,paginacao));
     }
     
 
