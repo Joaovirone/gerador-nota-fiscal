@@ -5,8 +5,10 @@ import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.NFS_E.notaFiscalEletronica.controller.dto.NotaFiscalFiltroDTO;
 import com.NFS_E.notaFiscalEletronica.controller.dto.NotaFiscalRequestDTO;
 import com.NFS_E.notaFiscalEletronica.controller.dto.NotaFiscalResponseDTO;
 import com.NFS_E.notaFiscalEletronica.controller.dto.PageResponseDTO;
@@ -14,6 +16,7 @@ import com.NFS_E.notaFiscalEletronica.controller.dto.mapper.NotaFiscalMapper;
 import com.NFS_E.notaFiscalEletronica.entity.NotaFiscal;
 import com.NFS_E.notaFiscalEletronica.entity.enums.StatusNota;
 import com.NFS_E.notaFiscalEletronica.repository.NotaFiscalRepository;
+import com.NFS_E.notaFiscalEletronica.repository.specs.NotaFiscalSpecs;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -85,13 +88,14 @@ public class NotaFiscalService {
         return mapper.toResponse(notaAutorizada);
     }
 
-    public PageResponseDTO<NotaFiscalResponseDTO> listarTodas(Pageable paginacao){
+    public PageResponseDTO<NotaFiscalResponseDTO> listarTodas(NotaFiscalFiltroDTO filtro,Pageable paginacao){
 
-        Page<NotaFiscal> page = repository.findAll(paginacao);
+        Specification<NotaFiscal> spec = NotaFiscalSpecs.comFiltros(filtro);
 
-        Page<NotaFiscalResponseDTO> pageDto = page.map(mapper :: toResponse);
+        Page<NotaFiscal> page = repository.findAll(spec, paginacao);
 
-        return new PageResponseDTO<>(pageDto);
+
+        return new PageResponseDTO<>(page.map(mapper :: toResponse));
     }
 
 
