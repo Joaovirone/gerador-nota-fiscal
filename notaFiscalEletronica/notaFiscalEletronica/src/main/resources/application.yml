@@ -28,8 +28,15 @@ spring:
     fail-on-missing-locations: false
     out-of-order: false
 
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET}
+      
 server:
   port: 5002
+
+
 
 logging:
   level:
