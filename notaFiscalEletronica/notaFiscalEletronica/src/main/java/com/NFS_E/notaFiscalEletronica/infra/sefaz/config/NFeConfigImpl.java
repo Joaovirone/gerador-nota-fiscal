@@ -6,10 +6,10 @@ import java.security.KeyStore;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import com.fincatto.documentofiscal.DFAmbiente;
 import com.fincatto.documentofiscal.DFConfig;
 import com.fincatto.documentofiscal.DFUnidadeFederativa;
-import com.fincatto.documentofiscal.nfe.NFTipoAmbiente;
+
 
 @Component
 public class NFeConfigImpl extends DFConfig {
@@ -27,9 +27,9 @@ public class NFeConfigImpl extends DFConfig {
     }
     
     @Override
-    public NFTipoAmbiente getAmbiente() {
+    public DFAmbiente getAmbiente() {
 
-        return NFTipoAmbiente.HOMOLOGACAO;
+        return DFAmbiente.HOMOLOGACAO;
     }
 
     @Override
@@ -49,6 +49,11 @@ public class NFeConfigImpl extends DFConfig {
     @Override
     public String getCertificadoSenha() {
         return certificadoSenha;
+    }
+
+    @Override
+    public String getCadeiaCerificadosSenha(){
+        return "";
     }
 
     @Override
