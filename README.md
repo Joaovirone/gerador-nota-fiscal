@@ -1,4 +1,9 @@
-SIstema de Nota Fiscal em andamento!
+# Sistema de Nota Fiscal em andamento!
+
+
+DATABASE = localhost:5001
+
 
 API BACKEND = localhost:5002
-DATABASE = localhost:5001
+
+
