@@ -79,4 +79,9 @@ public class NotaFiscal {
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal :: add);
     }
+
+    public String getCodigoNumerico() {
+
+        return "12345678"; 
+    }
 }
