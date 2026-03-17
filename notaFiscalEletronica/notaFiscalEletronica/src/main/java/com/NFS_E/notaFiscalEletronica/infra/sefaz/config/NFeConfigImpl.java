@@ -6,6 +6,7 @@ import java.security.KeyStore;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import com.fincatto.documentofiscal.DFAmbiente;
 import com.fincatto.documentofiscal.DFConfig;
 import com.fincatto.documentofiscal.DFUnidadeFederativa;
@@ -52,13 +53,12 @@ public class NFeConfigImpl extends DFConfig {
     }
 
     @Override
-    public String getCadeiaCerificadosSenha(){
+    public String getCadeiaCertificadosSenha() {
         return "";
     }
 
     @Override
     public KeyStore getCadeiaCertificadosKeyStore() {
-
         return null;
     }
 }
