@@ -22,7 +22,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -58,6 +57,9 @@ public class NotaFiscal {
     @OneToMany(mappedBy="notaFiscal", cascade= CascadeType.ALL, orphanRemoval= true)
     private List<ItemNotaFiscal> itens = new ArrayList<>();
 
+    @Column(length = 8)
+    private String codigoNumerico;
+
 
     @CreatedDate
     @Column(nullable=false, updatable=false)
@@ -81,7 +83,16 @@ public class NotaFiscal {
     }
 
     public String getCodigoNumerico() {
-
-        return "12345678"; 
+        if (this.codigoNumerico == null) {
+            gerarCodigoNumerico();
+        }
+        return this.codigoNumerico;
     }
+
+    public void gerarCodigoNumerico() {
+    if (this.codigoNumerico == null) {
+        // Gera 8 dígitos aleatórios
+        this.codigoNumerico = String.format("%08d", new java.util.Random().nextInt(100000000));
+    }
+}
 }
