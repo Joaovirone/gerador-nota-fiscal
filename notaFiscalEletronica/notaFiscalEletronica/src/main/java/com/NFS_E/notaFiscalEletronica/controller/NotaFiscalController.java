@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.NFS_E.notaFiscalEletronica.entity.NotaFiscal;
 import com.NFS_E.notaFiscalEletronica.service.NotaFiscalService;
+import com.NFS_E.notaFiscalEletronica.*
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,8 @@ import com.NFS_E.notaFiscalEletronica.controller.dto.PageResponseDTO;
 public class NotaFiscalController {
     
     private final NotaFiscalService service;
-
+    private final NfeTransmissaoService transmissaoService;
+    private final NotaFiscalRepository repository;
 
     @PostMapping("/criar-nota-fiscal")
     public ResponseEntity<NotaFiscalResponseDTO> criarNota(@RequestBody @Valid NotaFiscalRequestDTO request) {
@@ -53,6 +55,23 @@ public class NotaFiscalController {
 
         return ResponseEntity.ok(response);
     
+    }
+
+    @PostMapping("/{id}/transmitir-nota-fiscal")
+    public ResponseEntity<NotaFiscal> transmitirNota(@PathVariable UUID id) {
+
+        NotaFiscal notaBanco = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Nota Fiscal não encontrada. ID: " + id));
+
+        if (notaBanco.getStatus() == com.NFS_E.notaFiscalEletronica.entity.enums.StatusNota.AUTORIZADA) {
+            return ResponseEntity.badRequest().body(notaBanco);
+        }
+
+        NotaFiscal notaProcessada = transmissaoService.transmitir(notaBanco);
+
+        repository.save(notaProcessada);
+
+        return ResponseEntity.ok(notaProcessada);
     }
 
     @PatchMapping("/{id}/cancelar-nota-fiscal")

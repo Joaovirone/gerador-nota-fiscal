@@ -54,6 +54,29 @@ public class NfeTransmissaoService {
 
     private void processarRetornoSefaz(NFLoteEnvioRetorno retorno, NotaFiscal nota) {
 
+        if ("100".equals(statusSefaz)) {
+            nota.setStatus(StatusNota.AUTORIZADA);
+            nota.setProtocoloSefaz(protocoloInfo.getNumeroProtocolo());
+
+            // --- NOVO: GERANDO O XML COM VALIDADE JURÍDICA ---
+            try {
+                NFNotaProcessada notaProcessada = new NFNotaProcessada();
+                notaProcessada.setVersao(new BigDecimal("4.00"));
+
+                // nfNota é o objeto gerado no início do transmitir()
+                // retorno.getProtocoloRetorno() é a resposta da SEFAZ
+                notaProcessada.setNota(nfNota);
+                notaProcessada.setProtocolo(retorno.getProtocoloRetorno());
+
+                // Salva o XML final no banco de dados!
+                nota.setXmlProcessado(notaProcessada.toString());
+            } catch (Exception e) {
+                System.err.println("Erro ao montar procNfe: " + e.getMessage());
+            }
+
+            System.out.println("NOTA AUTORIZADA! Protocolo: " + nota.getProtocoloSefaz());
+        }
+
         if ("104".equals(retorno.getStatus()) && retorno.getProtocoloRetorno() != null) {
 
             var protocoloInfo = retorno.getProtocoloRetorno().getProtocoloInfo();
@@ -79,4 +102,45 @@ public class NfeTransmissaoService {
             nota.setStatus(StatusNota.REJEITADA);
         }
     }
+
+
+    public NotaFiscal cancelarSefaz(NotaFiscal nota, String justificativa) {
+        try {
+            if (justificativa.length() < 15) throw new RuntimeException("Justificativa deve ter no mínimo 15 caracteres.");
+
+            NFInfoEventoCancelamento info = new NFInfoEventoCancelamento();
+            info.setAmbiente(config.getAmbiente());
+            info.setChave(nota.getChaveAcesso());
+            info.setCnpj("12345678000123");
+            info.setDataHoraEvento(ZonedDateTime.now());
+            info.setNumeroProtocolo(nota.getProtocoloSefaz());
+            info.setOrgao(config.getCUF());
+            info.setJustificativa(justificativa);
+            info.setNumeroSequencialEvento(1);
+
+            NFEventoCancelamento evento = new NFEventoCancelamento();
+            evento.setInfoEvento(info);
+            evento.setVersao("1.00");
+
+            NFEnviaEventoCancelamento enviaCancelamento = new NFEnviaEventoCancelamento();
+            enviaCancelamento.setEvento(Collections.singletonList(evento));
+            enviaCancelamento.setIdLote("1");
+            enviaCancelamento.setVersao("1.00");
+
+            System.out.println("Enviando evento de Cancelamento para a SEFAZ...");
+            WSFacade wsFacade = new WSFacade(config);
+            NFEnviaEventoRetorno retorno = wsFacade.cancelaNota(enviaCancelamento);
+
+            if ("135".equals(retorno.getRetornoEventos().get(0).getInfoEventoRetorno().getCodigoStatus())) {
+                nota.setStatus(StatusNota.CANCELADA);
+                nota.setMotivoSefaz("Nota Cancelada com sucesso.");
+            } else {
+                throw new RuntimeException("Erro ao cancelar: " + retorno.getRetornoEventos().get(0).getInfoEventoRetorno().getMotivo());
+            }
+
+            return nota;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao enviar cancelamento para SEFAZ: " + e.getMessage(), e);
+        }
+
 }
