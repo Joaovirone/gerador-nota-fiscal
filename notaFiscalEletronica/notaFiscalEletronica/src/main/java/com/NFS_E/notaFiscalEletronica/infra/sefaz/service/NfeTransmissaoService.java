@@ -68,7 +68,7 @@ public class NfeTransmissaoService {
             } 
             else if ("110".equals(statusSefaz) || "301".equals(statusSefaz)) {
                 nota.setStatus(StatusNota.CANCELADA);
-                System.err.println("NOTA DENEGADA: " + protocoloInfo.getMotivo());
+                System.err.println("NOTA CANCELADA: " + protocoloInfo.getMotivo());
             }
             else {
                 nota.setStatus(StatusNota.REJEITADA);
