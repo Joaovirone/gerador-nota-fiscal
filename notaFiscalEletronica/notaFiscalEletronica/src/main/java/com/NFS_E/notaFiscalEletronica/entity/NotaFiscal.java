@@ -60,7 +60,15 @@ public class NotaFiscal {
     @Column(length = 8)
     private String codigoNumerico;
 
+    @Column(columnDefinition= "TEXT")
+    private String xmlAssinado;
 
+    @Column(length=50)
+    private String protocoloSefaz;
+
+    @Column(length = 150)
+    private String motivoSefaz;
+    
     @CreatedDate
     @Column(nullable=false, updatable=false)
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
