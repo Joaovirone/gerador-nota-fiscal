@@ -6,5 +6,6 @@ public enum StatusNota {
     PROCESSANDO,
     AUTORIZADA,
     REJEITADA,
-    CANCELADA
+    CANCELADA,
+    ERRO_TRANSMISSAO
 }
