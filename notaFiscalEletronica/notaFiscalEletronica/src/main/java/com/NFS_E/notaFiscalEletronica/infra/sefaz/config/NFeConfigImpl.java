@@ -15,10 +15,10 @@ import com.fincatto.documentofiscal.DFUnidadeFederativa;
 @Component
 public class NFeConfigImpl extends DFConfig {
     
-    @Value("${sefaz.nfe.certificado.caminho}")
+    @Value("${sefaz.nfe.certificado.caminho:}")
     private String certificadoCaminho;
 
-    @Value("${sefaz.nfe.certificado.senha}")
+    @Value("${sefaz.nfe.certificado.senha:}")
     private String certificadoSenha;
 
     @Override
@@ -35,21 +35,23 @@ public class NFeConfigImpl extends DFConfig {
 
     @Override
     public KeyStore getCertificadoKeyStore() {
-
         try {
+            if (certificadoCaminho == null || certificadoCaminho.isBlank()) {
+                throw new IllegalStateException("Certificado SEFAZ não configurado");
+            }
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
             try (InputStream is = new FileInputStream(certificadoCaminho)) {
                 keyStore.load(is, certificadoSenha.toCharArray());
             }
             return keyStore;
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao carregar KeyStore do certificado: " + e.getMessage());
+            throw new RuntimeException("Erro ao carregar KeyStore do certificado: " + e.getMessage(), e);
         }
     }
 
     @Override
     public String getCertificadoSenha() {
-        return certificadoSenha;
+        return certificadoSenha == null ? "" : certificadoSenha;
     }
 
     @Override

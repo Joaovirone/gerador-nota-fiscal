@@ -15,6 +15,7 @@ import com.NFS_E.notaFiscalEletronica.controller.dto.PageResponseDTO;
 import com.NFS_E.notaFiscalEletronica.controller.dto.mapper.NotaFiscalMapper;
 import com.NFS_E.notaFiscalEletronica.entity.NotaFiscal;
 import com.NFS_E.notaFiscalEletronica.entity.enums.StatusNota;
+import com.NFS_E.notaFiscalEletronica.infra.sefaz.service.NfeTransmissaoService;
 import com.NFS_E.notaFiscalEletronica.repository.NotaFiscalRepository;
 import com.NFS_E.notaFiscalEletronica.repository.specs.NotaFiscalSpecs;
 
@@ -28,22 +29,23 @@ public class NotaFiscalService {
     
     private final NotaFiscalRepository repository;
     private final NotaFiscalMapper mapper;
-
+    private final NfeTransmissaoService transmissaoService;
 
     @Transactional
-    public NotaFiscalResponseDTO emitir( NotaFiscalRequestDTO dto){
+    public NotaFiscalResponseDTO emitir(NotaFiscalRequestDTO dto) {
 
         NotaFiscal nota = mapper.toEntity(dto);
 
-        if(nota.getItens() != null ){
+        if (nota.getItens() != null) {
             nota.getItens().forEach(item -> item.setNotaFiscal(nota));
         }
 
+        Long maiorNumero = repository.findMaxNumero();
+        nota.setNumero(maiorNumero == null ? 1L : maiorNumero + 1);
         nota.setStatus(StatusNota.PROCESSANDO);
         nota.calcularTotal();
 
         NotaFiscal notaSalva = repository.save(nota);
-
         return mapper.toResponse(notaSalva);
 
 
@@ -54,13 +56,11 @@ public class NotaFiscalService {
         NotaFiscal nota = repository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Nota não encontrada."));
 
-        if(!nota.getStatus().equals(StatusNota.CANCELADA)){
+        if (StatusNota.CANCELADA.equals(nota.getStatus())) {
             throw new IllegalStateException("Esta nota já está cancelada.");
         }
-
-        if(!nota.getStatus().equals(StatusNota.REJEITADA)){
-
-            throw new IllegalStateException("Não é possível cancelar uma nota que já está rejeitada.");
+        if (!StatusNota.AUTORIZADA.equals(nota.getStatus())) {
+            throw new IllegalStateException("Somente notas autorizadas podem ser canceladas.");
         }
 
         nota.setStatus(StatusNota.CANCELADA);
@@ -88,14 +88,20 @@ public class NotaFiscalService {
         return mapper.toResponse(notaAutorizada);
     }
 
-    public PageResponseDTO<NotaFiscalResponseDTO> listarTodas(NotaFiscalFiltroDTO filtro,Pageable paginacao){
+    @Transactional
+    public NotaFiscalResponseDTO transmitir(UUID id) {
+        NotaFiscal nota = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Nota não encontrada."));
 
+        NotaFiscal notaTransmitida = transmissaoService.transmitir(nota);
+        NotaFiscal notaSalva = repository.save(notaTransmitida);
+        return mapper.toResponse(notaSalva);
+    }
+
+    public PageResponseDTO<NotaFiscalResponseDTO> listarTodas(NotaFiscalFiltroDTO filtro, Pageable paginacao) {
         Specification<NotaFiscal> spec = NotaFiscalSpecs.comFiltros(filtro);
-
         Page<NotaFiscal> page = repository.findAll(spec, paginacao);
-
-
-        return new PageResponseDTO<>(page.map(mapper :: toResponse));
+        return new PageResponseDTO<>(page.map(mapper::toResponse));
     }
 
 

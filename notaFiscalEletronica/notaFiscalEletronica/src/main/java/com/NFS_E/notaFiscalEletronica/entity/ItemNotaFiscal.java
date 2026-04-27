@@ -72,12 +72,12 @@ public class ItemNotaFiscal {
     }
 
     public void calcularImpostos() {
-
-        this.baseCalculoIcms = this.valorTotal;
-        if (this.aliquotaIcms != null) {
-            this.valorIcms = this.baseCalculoIcms.multiply(this.aliquotaIcms)
-                                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
+        this.baseCalculoIcms = this.valorTotal != null ? this.valorTotal : BigDecimal.ZERO;
+        if (this.aliquotaIcms == null) {
+            this.aliquotaIcms = BigDecimal.ZERO;
         }
+        this.valorIcms = this.baseCalculoIcms.multiply(this.aliquotaIcms)
+                            .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
     }
 }
 

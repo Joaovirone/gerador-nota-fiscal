@@ -10,12 +10,6 @@ spring:
       connection-timeout: 20000
       maximum-pool-size: 5
 
-    sefaz:
-        nfe:
-        certificado:
-        caminho: dummy-cert.p12
-        senha: dummy-password
-
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -26,6 +20,12 @@ spring:
 
   flyway:
     enabled: false
+
+sefaz:
+  nfe:
+    certificado:
+      caminho: dummy-cert.p12
+      senha: dummy-password
 
 logging:
   level:

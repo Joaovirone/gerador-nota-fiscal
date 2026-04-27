@@ -1,22 +1,15 @@
 package com.NFS_E.notaFiscalEletronica.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.NFS_E.notaFiscalEletronica.entity.NotaFiscal;
-import com.NFS_E.notaFiscalEletronica.infra.sefaz.service.NfeTransmissaoService;
-import com.NFS_E.notaFiscalEletronica.repository.NotaFiscalRepository;
 import com.NFS_E.notaFiscalEletronica.service.NotaFiscalService;
 
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,8 +39,6 @@ import com.NFS_E.notaFiscalEletronica.controller.dto.PageResponseDTO;
 public class NotaFiscalController {
     
     private final NotaFiscalService service;
-    private final NfeTransmissaoService transmissaoService;
-    private final NotaFiscalRepository repository;
 
     @PostMapping("/criar-nota-fiscal")
     public ResponseEntity<NotaFiscalResponseDTO> criarNota(@RequestBody @Valid NotaFiscalRequestDTO request) {
@@ -59,20 +50,9 @@ public class NotaFiscalController {
     }
 
     @PostMapping("/{id}/transmitir-nota-fiscal")
-    public ResponseEntity<NotaFiscal> transmitirNota(@PathVariable UUID id) {
-
-        NotaFiscal notaBanco = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Nota Fiscal não encontrada. ID: " + id));
-
-        if (notaBanco.getStatus() == com.NFS_E.notaFiscalEletronica.entity.enums.StatusNota.AUTORIZADA) {
-            return ResponseEntity.badRequest().body(notaBanco);
-        }
-
-        NotaFiscal notaProcessada = transmissaoService.transmitir(notaBanco);
-
-        repository.save(notaProcessada);
-
-        return ResponseEntity.ok(notaProcessada);
+    public ResponseEntity<NotaFiscalResponseDTO> transmitirNota(@PathVariable UUID id) {
+        NotaFiscalResponseDTO response = service.transmitir(id);
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/cancelar-nota-fiscal")
