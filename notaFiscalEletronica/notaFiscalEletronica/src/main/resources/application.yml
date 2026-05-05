@@ -32,6 +32,9 @@ api:
   security:
     token:
       secret: ${JWT_SECRET}
+      expiration: 3600 # 1 hora em segundos
+    refresh-token:
+      expiration: 2592000 # 30 dias em segundos
       
 server:
   port: 5002
